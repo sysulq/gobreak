@@ -13,7 +13,7 @@ var (
 		Help:      "request count.",
 	}, []string{"name", "state"})
 
-	request_latency_histogram = prometheus.NewHistogramVec(prometheus.HistogramOpts{
+	requestLatencyHistogram = prometheus.NewHistogramVec(prometheus.HistogramOpts{
 		Namespace: namespace,
 		Name:      "request_latency_histogram",
 		Help:      "request latency histogram.",
@@ -21,5 +21,5 @@ var (
 )
 
 func init() {
-	prometheus.MustRegister(requests, request_latency_histogram)
+	prometheus.MustRegister(requests, requestLatencyHistogram)
 }

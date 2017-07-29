@@ -27,8 +27,8 @@ func Do(name string, run runFunc, fall fallbackFunc) error {
 
 	err = run()
 
-	elasped := time.Now().Sub(now).Seconds()
-	request_latency_histogram.WithLabelValues(name).Observe(elasped)
+	elapsed := time.Now().Sub(now).Seconds()
+	requestLatencyHistogram.WithLabelValues(name).Observe(elapsed)
 
 	if err != nil {
 		done(false)
