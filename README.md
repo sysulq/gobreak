@@ -165,7 +165,7 @@ sum by(name, state) (irate(gobreak_requests[5m]))
 
 ![gobreak_requests](example/gobreak_requests.png)
 
-* metric: http_request_duration_microseconds [Apdex score](https://en.wikipedia.org/wiki/Apdex)
+* metric: gobreak_request_latency_histogram [Apdex score](https://en.wikipedia.org/wiki/Apdex)
 
 ```
 (sum(rate(gobreak_request_latency_histogram_bucket{le="0.05"}[5m])) by (name) + (sum(rate(gobreak_request_latency_histogram_bucket{le="0.1"}[5m])) by (name))) / 2/ sum(rate(gobreak_request_latency_histogram_count[5m])) by (name)
