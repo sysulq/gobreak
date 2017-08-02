@@ -55,7 +55,7 @@ go install github.com/hnlq715/gobreak/example
 $(GOPATH)/bin/example
 ```
 
-Fail and fallback
+* Fail and fallback
 ```
 ➜  gobreak git:(master) ✗ curl localhost:8000
 fallback
@@ -67,7 +67,7 @@ fallback
 fallback
 ```
 
-Timeout and fast fail
+* Timeout and fast fail
 ```
 ➜  gobreak git:(master) ✗ time curl localhost:8000/timeout
 mock error
