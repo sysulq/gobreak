@@ -11,6 +11,8 @@ const (
 	ErrFail   = "fail"
 )
 
+// Do runs your function in a synchronous manner, blocking until either your function succeeds
+// or an error is returned, including circuit errors
 func Do(name string, run runFunc, fall fallbackFunc) error {
 	c := getCircuit(name)
 

@@ -29,13 +29,23 @@ func TestDo(t *testing.T) {
 	err = Do("test", func() error {
 		return errors.New("failed")
 	}, func(error) error {
-		return errors.New("failed")
+		return errors.New("fallback")
 	})
-	assert.Equal(t, errors.New("failed"), err)
+	assert.Equal(t, errors.New("fallback"), err)
+
+	err = Do("test", func() error {
+		return errors.New("failed")
+	}, nil)
+	assert.Equal(t, errors.New("circuit breaker 'test' is open"), err)
+
+	err = Do("test", func() error {
+		return errors.New("failed")
+	}, nil)
+	assert.Equal(t, errors.New("circuit breaker 'test' is open"), err)
 }
 
 func TestDoDelay(t *testing.T) {
-	err := Do("test", func() error {
+	err := Do("delay", func() error {
 		time.Sleep(1 * time.Second)
 		return nil
 	}, nil)
