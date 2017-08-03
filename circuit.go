@@ -62,6 +62,7 @@ func getCircuit(name string) *gobreaker.TwoStepCircuitBreaker {
 // If ReadyToTrip returns true, the CircuitBreaker will be placed into the open state.
 // If ReadyToTrip is nil, default ReadyToTrip is used.
 //
+// Default settings:
 // MaxRequests: 3
 // Interval:    5 * time.Second
 // Timeout:     10 * time.Second
