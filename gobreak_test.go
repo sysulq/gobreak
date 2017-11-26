@@ -36,12 +36,12 @@ func TestDo(t *testing.T) {
 	err = Do("test", func() error {
 		return errors.New("failed")
 	}, nil)
-	assert.Equal(t, errors.New("circuit breaker 'test' is open"), err)
+	assert.Equal(t, errors.New("circuit breaker is open"), err)
 
 	err = Do("test", func() error {
 		return errors.New("failed")
 	}, nil)
-	assert.Equal(t, errors.New("circuit breaker 'test' is open"), err)
+	assert.Equal(t, errors.New("circuit breaker is open"), err)
 }
 
 func TestDoDelay(t *testing.T) {
