@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"os"
@@ -13,16 +14,16 @@ import (
 func main() {
 
 	http.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
-		err := gobreak.Do("test", func() error {
+		err := gobreak.Do(r.Context(), "test", func(context.Context) error {
 			return errors.New("mock error\n")
-		}, func(error) error {
+		}, func(context.Context, error) error {
 			return errors.New("fallback\n")
 		})
 		rw.Write([]byte(err.Error()))
 	})
 
 	http.HandleFunc("/timeout", func(rw http.ResponseWriter, r *http.Request) {
-		err := gobreak.Do("timeout", func() error {
+		err := gobreak.Do(r.Context(), "timeout", func(context.Context) error {
 			time.Sleep(2 * time.Second)
 			return errors.New("mock error\n")
 		}, nil)
