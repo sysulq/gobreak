@@ -35,12 +35,18 @@ func Go(ctx context.Context, name string, run runFunc, fall fallbackFunc) chan e
 	}
 
 	now := time.Now()
+	// Shared by the following two goroutines. It ensures only the faster
+	// goroutine runs errorWithFallback().
 	once := sync.Once{}
-	finished := make(chan struct{}, 0)
+	finished := make(chan struct{}, 1)
 
+	// goroutine 1
 	go func() {
 		// try recover when run function panics
 		defer func() {
+			// notify goroutine 2
+			finished <- struct{}{}
+
 			if e := recover(); e != nil {
 				once.Do(func() {
 					done(false)
@@ -48,8 +54,6 @@ func Go(ctx context.Context, name string, run runFunc, fall fallbackFunc) chan e
 					cmd.errorWithFallback(ctx, fmt.Errorf("%s", e))
 				})
 			}
-			// notify another goroutine
-			finished <- struct{}{}
 		}()
 
 		// process run function
@@ -63,9 +67,10 @@ func Go(ctx context.Context, name string, run runFunc, fall fallbackFunc) chan e
 		})
 	}()
 
-	// check if timeout or error happens
+	// goroutine 2
 	go func() {
 		select {
+		// check if goroutine 1 finished, timeout or error happens
 		case <-finished:
 		case <-ctx.Done():
 			once.Do(func() {
