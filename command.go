@@ -14,7 +14,7 @@ type command struct {
 	errChan chan error
 	run     runFunc
 	fall    fallbackFunc
-	elapsed time.Duration
+	start   time.Time
 }
 
 var errPanic = errors.New("command panics")
@@ -39,8 +39,9 @@ func (c *command) errorWithFallback(ctx context.Context, err error) {
 		event = "panic"
 	}
 
+	elapsed := c.start.Sub(time.Now()).Seconds()
 	requests.WithLabelValues(c.name, event).Inc()
-	requestLatencyHistogram.WithLabelValues(c.name).Observe(c.elapsed.Seconds())
+	requestLatencyHistogram.WithLabelValues(c.name).Observe(elapsed)
 
 	// run returns nil means everything is ok
 	if err == nil {

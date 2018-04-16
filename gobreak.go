@@ -26,6 +26,7 @@ func Go(ctx context.Context, name string, run runFunc, fall fallbackFunc) chan e
 		errChan: make(chan error, 1),
 		run:     run,
 		fall:    fall,
+		start:   time.Now(),
 	}
 
 	// ask circuit allow run or not
@@ -35,7 +36,6 @@ func Go(ctx context.Context, name string, run runFunc, fall fallbackFunc) chan e
 		return cmd.errChan
 	}
 
-	now := time.Now()
 	// Shared by the following two goroutines. It ensures only the faster
 	// goroutine runs errorWithFallback().
 	once := sync.Once{}
@@ -51,7 +51,6 @@ func Go(ctx context.Context, name string, run runFunc, fall fallbackFunc) chan e
 			if e := recover(); e != nil {
 				once.Do(func() {
 					done(false)
-					cmd.elapsed = time.Now().Sub(now)
 					cmd.errorWithFallback(ctx, errPanic)
 
 					stack := make([]byte, 1024*8)
@@ -67,7 +66,6 @@ func Go(ctx context.Context, name string, run runFunc, fall fallbackFunc) chan e
 		// report run results to circuit
 		once.Do(func() {
 			done(err == nil)
-			cmd.elapsed = time.Now().Sub(now)
 			cmd.errorWithFallback(ctx, err)
 		})
 	}()
@@ -80,7 +78,6 @@ func Go(ctx context.Context, name string, run runFunc, fall fallbackFunc) chan e
 		case <-ctx.Done():
 			once.Do(func() {
 				done(false)
-				cmd.elapsed = time.Now().Sub(now)
 				cmd.errorWithFallback(ctx, ctx.Err())
 			})
 		}
