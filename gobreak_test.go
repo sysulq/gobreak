@@ -69,7 +69,6 @@ func TestDoPanic(t *testing.T) {
 	}, nil)
 
 	assert.Equal(t, errors.New("command panics"), err)
-	t.Fail()
 }
 
 func TestGo(t *testing.T) {
