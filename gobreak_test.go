@@ -42,7 +42,8 @@ func TestDo(t *testing.T) {
 }
 
 func TestDoDelay(t *testing.T) {
-	ctx, _ := context.WithTimeout(context.TODO(), 1*time.Second)
+	ctx, cancel := context.WithTimeout(context.TODO(), 1*time.Second)
+	defer cancel()
 	err := Do(ctx, "delay", func(context.Context) error {
 		time.Sleep(2 * time.Second)
 		return nil
@@ -67,7 +68,8 @@ func TestDoPanic(t *testing.T) {
 		return nil
 	}, nil)
 
-	assert.Equal(t, errors.New("panic"), err)
+	assert.Equal(t, errors.New("command panics"), err)
+	t.Fail()
 }
 
 func TestGo(t *testing.T) {
@@ -145,7 +147,7 @@ func TestGoPanic(t *testing.T) {
 		return nil
 	}, nil)
 
-	assert.Equal(t, errors.New("panic"), <-err)
+	assert.Equal(t, errors.New("command panics"), <-err)
 }
 
 func TestGoPanicFallBack(t *testing.T) {

@@ -3,6 +3,7 @@ package gobreak
 import (
 	"context"
 	"fmt"
+	"runtime"
 	"sync"
 	"time"
 )
@@ -51,7 +52,11 @@ func Go(ctx context.Context, name string, run runFunc, fall fallbackFunc) chan e
 				once.Do(func() {
 					done(false)
 					cmd.elapsed = time.Now().Sub(now)
-					cmd.errorWithFallback(ctx, fmt.Errorf("%s", e))
+					cmd.errorWithFallback(ctx, errPanic)
+
+					stack := make([]byte, 1024*8)
+					stack = stack[:runtime.Stack(stack, false)]
+					fmt.Println(string(stack))
 				})
 			}
 		}()

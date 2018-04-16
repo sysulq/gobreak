@@ -2,6 +2,7 @@ package gobreak
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/sony/gobreaker"
@@ -15,6 +16,8 @@ type command struct {
 	fall    fallbackFunc
 	elapsed time.Duration
 }
+
+var errPanic = errors.New("command panics")
 
 // errorWithFallback process error and fallback logic, with prometheus metrics
 func (c *command) errorWithFallback(ctx context.Context, err error) {
@@ -32,6 +35,8 @@ func (c *command) errorWithFallback(ctx context.Context, err error) {
 		event = "too-many-requests"
 	case gobreaker.ErrOpenState:
 		event = "circuit-open"
+	case errPanic:
+		event = "panic"
 	}
 
 	requests.WithLabelValues(c.name, event).Inc()
@@ -51,6 +56,11 @@ func (c *command) errorWithFallback(ctx context.Context, err error) {
 
 	// fallback and return err
 	err = c.fall(ctx, err)
-	requests.WithLabelValues(c.name, "fallback").Inc()
 	c.errChan <- err
+
+	if err != nil {
+		requests.WithLabelValues(c.name, "fallback-failure").Inc()
+		return
+	}
+	requests.WithLabelValues(c.name, "fallback-success").Inc()
 }
