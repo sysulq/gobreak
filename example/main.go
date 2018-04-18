@@ -13,7 +13,7 @@ import (
 
 func main() {
 
-	http.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/test", func(rw http.ResponseWriter, r *http.Request) {
 		err := gobreak.Do(r.Context(), "test", func(context.Context) error {
 			return errors.New("mock error\n")
 		}, func(context.Context, error) error {
