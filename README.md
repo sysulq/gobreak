@@ -14,6 +14,7 @@ Feature
 * Prometheus metric supported
 * Integrated with context.Context
 * Async and sync method supported
+* Unit test coverage almost 100%
 
 Install
 ---
