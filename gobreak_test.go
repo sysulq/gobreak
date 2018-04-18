@@ -117,6 +117,16 @@ func TestGoNormal(t *testing.T) {
 	assert.Equal(t, nil, <-err)
 }
 
+func TestGoDoubleCheckLock(t *testing.T) {
+	ctx, _ := context.WithTimeout(context.TODO(), 2*time.Second)
+	err := Go(ctx, "normal", func(context.Context) error {
+		time.Sleep(1 * time.Second)
+		return nil
+	}, nil)
+
+	assert.Equal(t, nil, <-err)
+}
+
 func TestGoDelay(t *testing.T) {
 	ctx, _ := context.WithTimeout(context.TODO(), 1*time.Second)
 	err := Go(ctx, "delay", func(context.Context) error {
@@ -198,9 +208,11 @@ func BenchmarkDoFail(b *testing.B) {
 
 func BenchmarkGoFail(b *testing.B) {
 	ctx, _ := context.WithTimeout(context.TODO(), 1*time.Second)
-	for i := 0; i < b.N; i++ {
-		<-Go(ctx, "test", func(context.Context) error {
+	for i := 0; i < 1000; i++ {
+		Go(ctx, "test", func(context.Context) error {
 			return errors.New("fail")
 		}, nil)
 	}
+	time.Sleep(1 * time.Second)
+	b.Fail()
 }

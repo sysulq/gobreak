@@ -3,6 +3,7 @@ package gobreak
 import (
 	"context"
 	"fmt"
+	"os"
 	"runtime"
 	"sync"
 	"time"
@@ -55,7 +56,7 @@ func Go(ctx context.Context, name string, run runFunc, fall fallbackFunc) chan e
 
 					stack := make([]byte, 1024*8)
 					stack = stack[:runtime.Stack(stack, false)]
-					fmt.Println(string(stack))
+					fmt.Fprint(os.Stderr, string(stack))
 				})
 			}
 		}()

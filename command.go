@@ -23,24 +23,8 @@ var errPanic = errors.New("command panics")
 func (c *command) errorWithFallback(ctx context.Context, err error) {
 
 	// collect prometheus metrics
-	event := "failure"
-	switch err {
-	case nil:
-		event = "success"
-	case context.DeadlineExceeded:
-		event = "context-deadline-exceeded"
-	case context.Canceled:
-		event = "context-cancled"
-	case gobreaker.ErrTooManyRequests:
-		event = "too-many-requests"
-	case gobreaker.ErrOpenState:
-		event = "circuit-open"
-	case errPanic:
-		event = "panic"
-	}
-
 	elapsed := c.start.Sub(time.Now()).Seconds()
-	requests.WithLabelValues(c.name, event).Inc()
+	requests.WithLabelValues(c.name, errorToEvent(err)).Inc()
 	requestLatencyHistogram.WithLabelValues(c.name).Observe(elapsed)
 
 	// run returns nil means everything is ok
@@ -64,4 +48,24 @@ func (c *command) errorWithFallback(ctx context.Context, err error) {
 		return
 	}
 	requests.WithLabelValues(c.name, "fallback-success").Inc()
+}
+
+func errorToEvent(err error) string {
+	event := "failure"
+	switch err {
+	case nil:
+		event = "success"
+	case context.DeadlineExceeded:
+		event = "context-deadline-exceeded"
+	case context.Canceled:
+		event = "context-cancled"
+	case gobreaker.ErrTooManyRequests:
+		event = "too-many-requests"
+	case gobreaker.ErrOpenState:
+		event = "circuit-open"
+	case errPanic:
+		event = "panic"
+	}
+
+	return event
 }
