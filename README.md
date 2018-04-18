@@ -5,6 +5,16 @@
 
 Latency and fault tolerance library like Netflix's Hystrix with prometheus and gobreaker.
 
+Feature
+---
+
+* Lightweight
+* Easy to use
+* Panic recoverable
+* Prometheus metric supported
+* Integrated with context.Context
+* Async and sync method supported
+
 Install
 ---
 ```
