@@ -20,10 +20,6 @@ type command struct {
 var (
 	// errPanic is returned when goroutine panics
 	errPanic = errors.New("command panics")
-	// errTooManyRequests is returned when the CB state is half open and the requests count is over the cb maxRequests
-	errTooManyRequests = errors.New("too many requests")
-	// errOpenState is returned when the CB state is open
-	errOpenState = errors.New("circuit breaker is open")
 )
 
 // errorWithFallback process error and fallback logic, with prometheus metrics
@@ -66,9 +62,9 @@ func errorToEvent(err error) string {
 		event = "context-deadline-exceeded"
 	case context.Canceled:
 		event = "context-cancled"
-	case errTooManyRequests:
+	case gobreaker.ErrTooManyRequests:
 		event = "too-many-requests"
-	case errOpenState:
+	case gobreaker.ErrOpenState:
 		event = "circuit-open"
 	case errPanic:
 		event = "panic"
