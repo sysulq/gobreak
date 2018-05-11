@@ -17,7 +17,14 @@ type command struct {
 	start   time.Time
 }
 
-var errPanic = errors.New("command panics")
+var (
+	// errPanic is returned when goroutine panics
+	errPanic = errors.New("command panics")
+	// errTooManyRequests is returned when the CB state is half open and the requests count is over the cb maxRequests
+	errTooManyRequests = errors.New("too many requests")
+	// errOpenState is returned when the CB state is open
+	errOpenState = errors.New("circuit breaker is open")
+)
 
 // errorWithFallback process error and fallback logic, with prometheus metrics
 func (c *command) errorWithFallback(ctx context.Context, err error) {
@@ -59,9 +66,9 @@ func errorToEvent(err error) string {
 		event = "context-deadline-exceeded"
 	case context.Canceled:
 		event = "context-cancled"
-	case gobreaker.ErrTooManyRequests:
+	case errTooManyRequests:
 		event = "too-many-requests"
-	case gobreaker.ErrOpenState:
+	case errOpenState:
 		event = "circuit-open"
 	case errPanic:
 		event = "panic"
