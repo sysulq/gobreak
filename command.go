@@ -27,7 +27,7 @@ func (c *command) errorWithFallback(ctx context.Context, err error) {
 
 	// collect prometheus metrics
 	elapsed := c.start.Sub(time.Now()).Seconds()
-	requests.WithLabelValues(c.name, errorToEvent(err)).Inc()
+	requests.WithLabelValues(c.name, ErrorToEvent(err)).Inc()
 	requestLatencyHistogram.WithLabelValues(c.name).Observe(elapsed)
 
 	// run returns nil means everything is ok
@@ -53,7 +53,8 @@ func (c *command) errorWithFallback(ctx context.Context, err error) {
 	requests.WithLabelValues(c.name, "fallback-success").Inc()
 }
 
-func errorToEvent(err error) string {
+// ErrorToEvent converts error to event
+func ErrorToEvent(err error) string {
 	event := "failure"
 	switch err {
 	case nil:
